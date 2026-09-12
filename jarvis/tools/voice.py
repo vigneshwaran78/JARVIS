@@ -2,16 +2,28 @@ from __future__ import annotations
 
 
 class VoiceTool:
-    def listen(self) -> str:
+    def listen(self, debug: bool = True) -> str:
         try:
             import speech_recognition as sr
 
             r = sr.Recognizer()
+            r.energy_threshold = 300
+            r.dynamic_energy_threshold = True
             with sr.Microphone() as source:
-                audio = r.listen(source, timeout=5)
-            return r.recognize_google(audio)
+                if debug:
+                    print("Calibrating mic...")
+                r.adjust_for_ambient_noise(source, duration=1)
+                if debug:
+                    print("Listening...")
+                audio = r.listen(source, timeout=8, phrase_time_limit=5)
+            text = r.recognize_google(audio, language="en-US")
+            if debug:
+                print(f"Heard: {text}")
+            return text
         except Exception as e:
-            return f"[voice listen error: {e}]"
+            if debug:
+                print(f"[voice listen error: {e}]")
+            return ""
 
     def speak(self, text: str) -> None:
         try:

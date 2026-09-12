@@ -26,7 +26,8 @@ def main() -> None:
                 continue
             if not heard:
                 continue
-            if "hey jarvis" not in heard.lower():
+            if "jarvis" not in heard.lower():
+                print(f"Ignored (no wake word): {heard}")
                 continue
             print(f"Heard wake word: {heard}")
             agent.speak("Yes?")
