@@ -1,0 +1,4 @@
+certifi>=2025.0.0
+openai>=1.0
+SpeechRecognition>=3.10
+pyttsx3>=2.9
