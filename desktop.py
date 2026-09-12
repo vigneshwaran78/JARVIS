@@ -12,7 +12,8 @@ class JarvisBubble:
         self.root.title("JARVIS")
         self.root.overrideredirect(True)
         self.root.attributes("-topmost", True)
-        self.root.geometry("60x60+1600+800")
+        sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        self.root.geometry(f"60x60+{sw-84}+{sh-84}")
         self.root.configure(bg="#1a1a2e")
 
         self.bubble = tk.Button(
@@ -41,7 +42,8 @@ class JarvisBubble:
             return
         self.chat_win = tk.Toplevel(self.root)
         self.chat_win.title("JARVIS")
-        self.chat_win.geometry("360x460+1240+400")
+        sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        self.chat_win.geometry(f"360x460+{sw-384}+{sh-544}")
         self.chat_win.configure(bg="#1a1a2e")
         self.chat_win.attributes("-topmost", True)
 
