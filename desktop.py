@@ -134,8 +134,14 @@ class JarvisBubble:
                 self.agent.speak(reply)
             except Exception:
                 pass
+            self.chat_win.after(1200, voice_listen)
 
         entry.bind("<Return>", send)
+
+        msgs.configure(state="normal")
+        msgs.insert("end", "JARVIS: Hey, I'm JARVIS — say something!\n", "assistant")
+        msgs.configure(state="disabled")
+        self.chat_win.after(800, voice_listen)
 
     def run(self) -> None:
         self.root.mainloop()
