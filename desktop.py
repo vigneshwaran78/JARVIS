@@ -7,7 +7,7 @@ from jarvis.agent import JarvisAgent
 
 class JarvisBubble:
     def __init__(self) -> None:
-        self.agent = JarvisAgent()
+        self.agent = JarvisAgent(voice=True)
         self.root = tk.Tk()
         self.root.title("JARVIS")
         self.root.overrideredirect(True)
@@ -82,15 +82,43 @@ class JarvisBubble:
 
         input_frame = tk.Frame(inner, bg="#131314")
         input_frame.pack(fill="x", padx=12, pady=12)
-        entry = tk.Entry(input_frame, bg="#1e1f20", fg="#e8eaed", insertbackground="white", bd=0, relief="flat", font=("Helvetica", 10))
-        entry.pack(side="left", fill="x", expand=True, ipady=8, padx=(0,8))
+        entry = tk.Entry(input_frame, bg="#1e1f20", fg="#e8eaed", insertbackground="white", bd=0, relief="flat", font=("Helvetica", 11))
+        entry.pack(side="left", fill="x", expand=True, ipady=10, padx=(0,6))
         entry.focus()
+
+        def voice_listen():
+            entry.delete(0, "end")
+            entry.insert(0, "Listening...")
+            msgs.configure(state="normal")
+            msgs.insert("end", "🎤 Listening...\n", "assistant")
+            msgs.configure(state="disabled")
+            msgs.see("end")
+            self.root.update()
+            try:
+                text = self.agent.voice_tool.listen()
+                entry.delete(0, "end")
+                if text and "voice listen error" not in text.lower():
+                    entry.insert(0, text)
+                    send()
+                else:
+                    entry.delete(0, "end")
+                    msgs.configure(state="normal")
+                    msgs.insert("end", f"{text}\n", "assistant")
+                    msgs.configure(state="disabled")
+            except Exception as e:
+                entry.delete(0, "end")
+                msgs.configure(state="normal")
+                msgs.insert("end", f"Voice error: {e}\n", "assistant")
+                msgs.configure(state="disabled")
+
+        mic_btn = tk.Button(input_frame, text="🎤", bg="#1e1f20", fg="#8ab4f8", bd=0, font=("Helvetica", 12), width=3, command=voice_listen, activebackground="#2d2e30")
+        mic_btn.pack(side="left", padx=(0,6))
         send_btn = tk.Button(input_frame, text="▲", bg="#8ab4f8", fg="#202124", bd=0, font=("Helvetica", 10, "bold"), width=3, command=lambda: send())
         send_btn.pack(side="right")
 
         def send(event=None):
             text = entry.get().strip()
-            if not text:
+            if not text or text == "Listening...":
                 return
             msgs.configure(state="normal")
             msgs.insert("end", f"{text}\n", "user")
@@ -102,6 +130,10 @@ class JarvisBubble:
             msgs.configure(state="disabled")
             msgs.see("end")
             entry.delete(0, "end")
+            try:
+                self.agent.speak(reply)
+            except Exception:
+                pass
 
         entry.bind("<Return>", send)
 
