@@ -14,16 +14,16 @@ class JarvisBubble:
         self.root.attributes("-topmost", True)
         sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         self.root.geometry(f"60x60+{sw-84}+{sh-84}")
-        self.root.configure(bg="#1a1a2e")
+        self.root.configure(bg="#131314")
 
         self.bubble = tk.Button(
             self.root,
             text="J",
             font=("Helvetica", 20, "bold"),
-            bg="#7c3aed",
-            fg="white",
+            bg="#8ab4f8",
+            fg="#202124",
             bd=0,
-            activebackground="#6d28d9",
+            activebackground="#aecbfa",
             command=self.toggle_chat,
         )
         self.bubble.pack(fill="both", expand=True)
@@ -41,36 +41,46 @@ class JarvisBubble:
             self.chat_win = None
             return
         self.chat_win = tk.Toplevel(self.root)
-        self.chat_win.title("JARVIS")
+        self.chat_win.title("JARVIS — Gemini")
         sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         self.chat_win.geometry(f"360x460+{sw-384}+{sh-544}")
-        self.chat_win.configure(bg="#1a1a2e")
+        self.chat_win.configure(bg="#131314")
         self.chat_win.attributes("-topmost", True)
 
-        msgs = tk.Text(self.chat_win, bg="#1a1a2e", fg="white", wrap="word", state="disabled")
-        msgs.pack(fill="both", expand=True, padx=8, pady=8)
+        header = tk.Frame(self.chat_win, bg="#1e1f20")
+        header.pack(fill="x")
+        tk.Label(header, text="JARVIS", bg="#1e1f20", fg="#e8eaed", font=("Helvetica", 10, "bold")).pack(side="left", padx=12, pady=8)
+        tk.Label(header, text="Gemini • JARVIS", bg="#1e1f20", fg="#9aa0a6", font=("Helvetica", 8)).pack(side="right", padx=12)
 
-        entry = tk.Entry(self.chat_win, bg="#0f0f1e", fg="white", insertbackground="white")
-        entry.pack(fill="x", padx=8, pady=8)
+        msgs = tk.Text(self.chat_win, bg="#131314", fg="#e8eaed", wrap="word", state="disabled", bd=0, padx=12, pady=12, font=("Helvetica", 10))
+        msgs.pack(fill="both", expand=True)
+        msgs.tag_configure("user", background="#2d2e30", foreground="#e8eaed", lmargin1=80, lmargin2=80, rmargin=8, spacing1=6, spacing3=6)
+        msgs.tag_configure("assistant", foreground="#e8eaed", lmargin1=8, lmargin2=8, rmargin=40, spacing1=6, spacing3=6)
+
+        input_frame = tk.Frame(self.chat_win, bg="#131314")
+        input_frame.pack(fill="x", padx=12, pady=12)
+        entry = tk.Entry(input_frame, bg="#1e1f20", fg="#e8eaed", insertbackground="white", bd=0, relief="flat", font=("Helvetica", 10))
+        entry.pack(side="left", fill="x", expand=True, ipady=8, padx=(0,8))
         entry.focus()
+        send_btn = tk.Button(input_frame, text="▲", bg="#8ab4f8", fg="#202124", bd=0, font=("Helvetica", 10, "bold"), width=3, command=lambda: send())
+        send_btn.pack(side="right")
 
         def send(event=None):
             text = entry.get().strip()
             if not text:
                 return
             msgs.configure(state="normal")
-            msgs.insert("end", f"You: {text}\n")
+            msgs.insert("end", f"{text}\n", "user")
             try:
                 reply = self.agent.run(text)
             except Exception as e:
                 reply = f"Error: {e}"
-            msgs.insert("end", f"JARVIS: {reply}\n\n")
+            msgs.insert("end", f"{reply}\n", "assistant")
             msgs.configure(state="disabled")
             msgs.see("end")
             entry.delete(0, "end")
 
         entry.bind("<Return>", send)
-        tk.Button(self.chat_win, text="Send", bg="#7c3aed", fg="white", bd=0, command=send).pack(pady=4)
 
     def run(self) -> None:
         self.root.mainloop()
