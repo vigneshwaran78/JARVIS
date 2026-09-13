@@ -3,28 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JARVIS</title>
+  <title>JARVIS — Gemini style</title>
   <link rel="stylesheet" href="/static/style.css" />
 </head>
-<body>
-  <main class="hero">
-    <h1>JARVIS</h1>
-    <p>Your Stark-inspired assistant — voice, system, memory, knowledge.</p>
-    <p>Click the floating icon bottom-right to chat.</p>
-  </main>
+<body class="gemini">
+  <header class="topbar">
+    <span class="logo">JARVIS</span>
+    <span class="model">Gemini • JARVIS</span>
+  </header>
 
-  <button id="jarvis-bubble" aria-label="Open JARVIS chat">J</button>
+  <main id="chat-stream"></main>
 
+  <div class="composer-wrap">
+    <div class="composer">
+      <input id="chat-input" placeholder="Ask JARVIS" autocomplete="off" />
+      <button id="chat-send" aria-label="Send">▲</button>
+    </div>
+    <p class="hint">JARVIS can make mistakes. Check important info.</p>
+  </div>
+
+  <button id="jarvis-bubble" aria-label="Open JARVIS">J</button>
   <div id="jarvis-panel" class="hidden">
-    <div class="panel-header">
-      <span>JARVIS</span>
-      <button id="jarvis-close">×</button>
-    </div>
+    <div class="panel-header"><span>JARVIS</span><button id="jarvis-close">×</button></div>
     <div id="jarvis-messages"></div>
-    <div class="panel-input">
-      <input id="jarvis-input" placeholder="Ask JARVIS..." />
-      <button id="jarvis-send">Send</button>
-    </div>
+    <div class="panel-input"><input id="jarvis-input" placeholder="Ask JARVIS..." /><button id="jarvis-send">Send</button></div>
   </div>
 
   <script src="/static/script.js"></script>
