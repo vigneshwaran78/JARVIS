@@ -43,11 +43,26 @@ class JarvisAgent:
 
         self._messages.append({"role": "user", "content": user_input})
         self.memory.add("user", user_input)
-        choice = self.provider.chat(self._messages)
-        content = choice["message"]["content"] or ""
-        self._messages.append({"role": "assistant", "content": content})
-        self.memory.add("assistant", content)
-        return content
+        fallbacks = [
+            self.provider.model,
+            "cohere/north-mini-code:free",
+            "liquid/lfm-2.5-2.6b:free",
+        ]
+        last_error = None
+        for model in fallbacks:
+            try:
+                self.provider.model = model
+                choice = self.provider.chat(self._messages)
+                content = choice["message"]["content"] or ""
+                self._messages.append({"role": "assistant", "content": content})
+                self.memory.add("assistant", content)
+                return content
+            except RuntimeError as e:
+                last_error = e
+                if "429" in str(e) and model != fallbacks[-1]:
+                    continue
+                raise
+        raise last_error or RuntimeError("All models rate-limited")
 
     def speak(self, text: str) -> None:
         if self.voice_tool:
