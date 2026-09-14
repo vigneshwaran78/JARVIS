@@ -1,43 +1,61 @@
-const stream = document.getElementById('chat-stream');
+const conversation = document.getElementById('conversation');
+const welcome = document.getElementById('welcome');
 const input = document.getElementById('chat-input');
 const send = document.getElementById('chat-send');
+const newChat = document.getElementById('new-chat');
 
-function addBubble(role, text) {
-  const div = document.createElement('div');
-  div.className = 'bubble ' + role;
-  div.textContent = text;
-  stream.appendChild(div);
-  stream.scrollTop = stream.scrollHeight;
+function resizeInput() {
+  input.style.height = 'auto';
+  input.style.height = `${Math.min(input.scrollHeight, 160)}px`;
+  send.disabled = !input.value.trim();
 }
 
-async function sendMain() {
-  const text = input.value.trim();
-  if (!text) return;
-  addBubble('user', text);
+function addMessage(role, text, typing = false) {
+  const message = document.createElement('article');
+  message.className = `message ${role}${typing ? ' typing' : ''}`;
+  const icon = role === 'user' ? 'V' : 'J';
+  const label = role === 'user' ? 'YOU' : 'JARVIS';
+  message.innerHTML = `<div class="message-avatar">${icon}</div><div class="message-body"><div class="message-label">${label}</div><div class="message-text">${typing ? '<i></i><i></i><i></i>' : ''}</div></div>`;
+  if (!typing) message.querySelector('.message-text').textContent = text;
+  conversation.appendChild(message);
+  conversation.scrollTop = conversation.scrollHeight;
+  return message;
+}
+
+function beginConversation() {
+  if (welcome.isConnected) welcome.remove();
+}
+
+async function submitMessage(prompt) {
+  const text = (prompt || input.value).trim();
+  if (!text || (send.disabled && !prompt)) return;
+  beginConversation();
+  addMessage('user', text);
   input.value = '';
-  const res = await fetch('/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:text}) });
-  const data = await res.json();
-  addBubble('assistant', data.response || 'Error');
+  resizeInput();
+  send.disabled = true;
+  const indicator = addMessage('assistant', '', true);
+  try {
+    const response = await fetch('/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }),
+    });
+    const data = await response.json();
+    indicator.remove();
+    addMessage('assistant', data.response || 'I could not generate a response.');
+  } catch {
+    indicator.remove();
+    addMessage('assistant', 'Connection interrupted. Please try again.');
+  }
 }
-send.addEventListener('click', sendMain);
-input.addEventListener('keydown', e => { if(e.key==='Enter') sendMain(); });
 
-// floating bubble panel
-const bubble = document.getElementById('jarvis-bubble');
-const panel = document.getElementById('jarvis-panel');
-const closeBtn = document.getElementById('jarvis-close');
-const msgs = document.getElementById('jarvis-messages');
-const jInput = document.getElementById('jarvis-input');
-const jSend = document.getElementById('jarvis-send');
-function addMsg(role, text) {
-  const d=document.createElement('div'); d.className='msg '+role; d.textContent=text; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
-}
-async function sendPanel(){
-  const t=jInput.value.trim(); if(!t) return; addMsg('user',t); jInput.value='';
-  const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t})});
-  const d=await r.json(); addMsg('assistant', d.response||'Error');
-}
-bubble.addEventListener('click', ()=> panel.classList.toggle('hidden'));
-closeBtn.addEventListener('click', ()=> panel.classList.add('hidden'));
-jSend.addEventListener('click', sendPanel);
-jInput.addEventListener('keydown', e=>{ if(e.key==='Enter') sendPanel(); });
+send.addEventListener('click', () => submitMessage());
+input.addEventListener('input', resizeInput);
+input.addEventListener('keydown', event => {
+  if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submitMessage(); }
+});
+document.querySelectorAll('.suggestion').forEach(button => button.addEventListener('click', () => submitMessage(button.dataset.prompt)));
+newChat.addEventListener('click', () => { conversation.innerHTML = ''; conversation.appendChild(welcome); input.focus(); });
+document.addEventListener('keydown', event => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); input.focus(); }
+});
+resizeInput();
