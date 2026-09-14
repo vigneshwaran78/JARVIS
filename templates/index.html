@@ -3,32 +3,41 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JARVIS — Gemini style</title>
+  <meta name="theme-color" content="#08090e" />
+  <title>JARVIS — Your intelligent interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
-<body class="gemini">
-  <header class="topbar">
-    <span class="logo">JARVIS</span>
-    <span class="model">Gemini • JARVIS</span>
-  </header>
-
-  <main id="chat-stream"></main>
-
-  <div class="composer-wrap">
-    <div class="composer">
-      <input id="chat-input" placeholder="Ask JARVIS" autocomplete="off" />
-      <button id="chat-send" aria-label="Send">▲</button>
-    </div>
-    <p class="hint">JARVIS can make mistakes. Check important info.</p>
-  </div>
-
-  <button id="jarvis-bubble" aria-label="Open JARVIS">J</button>
-  <div id="jarvis-panel" class="hidden">
-    <div class="panel-header"><span>JARVIS</span><button id="jarvis-close">×</button></div>
-    <div id="jarvis-messages"></div>
-    <div class="panel-input"><input id="jarvis-input" placeholder="Ask JARVIS..." /><button id="jarvis-send">Send</button></div>
-  </div>
-
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <aside class="sidebar" aria-label="JARVIS navigation">
+    <div class="brand"><span class="brand-mark">J</span><span>JARVIS</span></div>
+    <button class="new-chat" id="new-chat"><span>＋</span> New conversation <kbd>⌘ K</kbd></button>
+    <nav><button class="nav-item active"><span>✦</span> Chat</button><button class="nav-item"><span>◌</span> Memory</button><button class="nav-item"><span>⌘</span> Workspace</button></nav>
+    <div class="sidebar-bottom"><div class="status"><i></i><span>Systems nominal</span></div><button class="profile"><span class="avatar">V</span><span><b>Vickie</b><small>Personal workspace</small></span><span class="more">•••</span></button></div>
+  </aside>
+  <main class="app-shell">
+    <header class="topbar"><button class="mobile-menu" aria-label="Open menu">☰</button><div class="model-pill"><span class="orb"></span> JARVIS <span class="chevron">⌄</span></div><div class="top-actions"><button class="icon-button" aria-label="Theme settings">☼</button><button class="share-button">Share <span>↗</span></button></div></header>
+    <section class="conversation" id="conversation" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <div class="hero-orb"><div class="hero-orb-inner">J</div><span class="ring ring-one"></span><span class="ring ring-two"></span></div>
+        <p class="eyebrow">GOOD EVENING, VICKIE</p>
+        <h1>How can I <em>help you</em><br />think today?</h1>
+        <p class="welcome-copy">I’m JARVIS, your focused intelligence layer.<br />Ask, explore, build, or simply begin.</p>
+        <div class="suggestions" aria-label="Suggested prompts">
+          <button class="suggestion" data-prompt="Help me plan my day with focused time blocks"><span class="suggestion-icon violet">✦</span><span><b>Plan my day</b><small>Build a focused schedule</small></span><i>↗</i></button>
+          <button class="suggestion" data-prompt="What should I learn next to grow my skills?"><span class="suggestion-icon blue">⌘</span><span><b>Explore ideas</b><small>Find your next curiosity</small></span><i>↗</i></button>
+          <button class="suggestion" data-prompt="Help me turn a rough thought into a clear first draft"><span class="suggestion-icon pink">◒</span><span><b>Make something</b><small>Start with a spark</small></span><i>↗</i></button>
+        </div>
+      </div>
+    </section>
+    <footer class="composer-area">
+      <div class="composer"><button class="composer-action add" aria-label="Add context">＋</button><textarea id="chat-input" rows="1" placeholder="Message JARVIS" aria-label="Message JARVIS"></textarea><div class="composer-tools"><button class="composer-action" aria-label="Use voice input">⌁</button><button id="chat-send" class="send-button" aria-label="Send message" disabled><span>↑</span></button></div></div>
+      <p class="disclaimer">JARVIS can make mistakes. Verify important information.</p>
+    </footer>
+  </main>
   <script src="/static/script.js"></script>
 </body>
 </html>
