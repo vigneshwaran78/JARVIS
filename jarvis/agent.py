@@ -20,6 +20,7 @@ class JarvisAgent:
             site_url=settings.openrouter_site_url,
             app_name=settings.openrouter_app_name,
         )
+        self.configured_model = settings.openrouter_model
         self.voice_enabled = voice
         self.memory = MemoryTool()
         self.knowledge = KnowledgeTool()
@@ -30,39 +31,55 @@ class JarvisAgent:
             self._messages.append(m)
 
     def run(self, user_input: str) -> str:
+        user_input = user_input.strip()
+        if not user_input:
+            return "Please enter a message."
         if user_input.lower().startswith("search "):
             result = self.knowledge.search(user_input[7:])
-            self.memory.add("user", user_input)
-            self.memory.add("assistant", result)
+            self._record_exchange(user_input, result)
             return result
         if user_input.lower().startswith("run "):
             result = self.system.run(user_input[4:])
-            self.memory.add("user", user_input)
-            self.memory.add("assistant", result)
+            self._record_exchange(user_input, result)
             return result
 
         self._messages.append({"role": "user", "content": user_input})
         self.memory.add("user", user_input)
-        fallbacks = [
-            self.provider.model,
+        models = [
+            self.configured_model,
             "cohere/north-mini-code:free",
             "liquid/lfm-2.5-2.6b:free",
         ]
         last_error = None
-        for model in fallbacks:
+        for model in dict.fromkeys(models):
             try:
                 self.provider.model = model
                 choice = self.provider.chat(self._messages)
                 content = choice["message"]["content"] or ""
-                self._messages.append({"role": "assistant", "content": content})
-                self.memory.add("assistant", content)
+                self._record_assistant_response(content)
                 return content
             except RuntimeError as e:
                 last_error = e
-                if "429" in str(e) and model != fallbacks[-1]:
+                if "429" in str(e) and model != models[-1]:
                     continue
                 raise
+            finally:
+                self.provider.model = self.configured_model
         raise last_error or RuntimeError("All models rate-limited")
+
+    def _record_exchange(self, user_input: str, response: str) -> None:
+        self._messages.extend(
+            [
+                {"role": "user", "content": user_input},
+                {"role": "assistant", "content": response},
+            ]
+        )
+        self.memory.add("user", user_input)
+        self.memory.add("assistant", response)
+
+    def _record_assistant_response(self, response: str) -> None:
+        self._messages.append({"role": "assistant", "content": response})
+        self.memory.add("assistant", response)
 
     def speak(self, text: str) -> None:
         if self.voice_tool:
