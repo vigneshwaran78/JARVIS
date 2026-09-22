@@ -4,40 +4,270 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#08090e" />
-  <title>JARVIS — Your intelligent interface</title>
+  <title>JARVIS — Your Intelligent Interface</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet" />
+  <!-- Highlight.js dark syntax theme -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
-<body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-  <aside class="sidebar" aria-label="JARVIS navigation">
-    <div class="brand"><span class="brand-mark">J</span><span>JARVIS</span></div>
-    <button class="new-chat" id="new-chat"><span>＋</span> New conversation <kbd>⌘ K</kbd></button>
-    <nav><button class="nav-item active"><span>✦</span> Chat</button><button class="nav-item"><span>◌</span> Memory</button><button class="nav-item"><span>⌘</span> Workspace</button></nav>
-    <div class="sidebar-bottom"><div class="status"><i></i><span>Systems nominal</span></div><button class="profile"><span class="avatar">V</span><span><b>Vickie</b><small>Personal workspace</small></span><span class="more">•••</span></button></div>
+<body class="theme-obsidian">
+  <!-- Dynamic Ambient Glows -->
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="ambient ambient-three"></div>
+
+  <!-- Mobile Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="JARVIS navigation">
+    <div class="brand">
+      <span class="brand-mark">J</span>
+      <div class="brand-text">
+        <span class="brand-title">JARVIS</span>
+        <span class="brand-sub">MARK VII • HUD</span>
+      </div>
+    </div>
+
+    <button class="new-chat" id="new-chat">
+      <span class="plus-icon">＋</span>
+      <span>New conversation</span>
+      <kbd>⌘ K</kbd>
+    </button>
+
+    <nav class="nav-menu">
+      <button class="nav-item active" id="nav-chat" data-view="chat">
+        <span class="nav-icon">✦</span>
+        <span>Chat</span>
+      </button>
+      <button class="nav-item" id="nav-memory" data-view="memory">
+        <span class="nav-icon">◌</span>
+        <span>Memory</span>
+        <span class="nav-badge" id="memory-count-badge">0</span>
+      </button>
+      <button class="nav-item" id="nav-workspace" data-view="workspace">
+        <span class="nav-icon">⌘</span>
+        <span>Workspace</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="status-indicator" id="system-status">
+        <i class="status-dot"></i>
+        <span class="status-text">Systems nominal</span>
+      </div>
+      <div class="profile-card">
+        <span class="avatar">V</span>
+        <div class="profile-meta">
+          <b>Vickie</b>
+          <small>Stark Workspace</small>
+        </div>
+        <button class="profile-action" id="audio-quick-toggle" title="Toggle audio feedback">🔊</button>
+      </div>
+    </div>
   </aside>
+
+  <!-- Main App Shell -->
   <main class="app-shell">
-    <header class="topbar"><button class="mobile-menu" aria-label="Open menu">☰</button><div class="model-pill"><span class="orb"></span> JARVIS <span class="chevron">⌄</span></div><div class="top-actions"><button class="icon-button" aria-label="Theme settings">☼</button><button class="share-button">Share <span>↗</span></button></div></header>
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Toggle navigation menu">☰</button>
+        <div class="model-pill" id="model-pill" title="Active Intelligence Model">
+          <span class="orb pulse-orb"></span>
+          <span class="model-label">JARVIS Core</span>
+          <span class="model-tag" id="active-model-name">Online</span>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="icon-button" id="tts-toggle-btn" title="Toggle voice readout on response" aria-label="Toggle text to speech">
+          <span id="tts-icon">🔊</span>
+        </button>
+        <button class="icon-button" id="theme-btn" title="Change Theme (Obsidian / Arc / Crimson)" aria-label="Theme settings">
+          <span>☼</span>
+        </button>
+        <button class="action-btn" id="share-btn" title="Copy conversation or link">
+          Share <span>↗</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Conversation View -->
     <section class="conversation" id="conversation" aria-live="polite">
+      <!-- Welcome Hero -->
       <div class="welcome" id="welcome">
-        <div class="hero-orb"><div class="hero-orb-inner">J</div><span class="ring ring-one"></span><span class="ring ring-two"></span></div>
-        <p class="eyebrow">GOOD EVENING, VICKIE</p>
-        <h1>How can I <em>help you</em><br />think today?</h1>
-        <p class="welcome-copy">I’m JARVIS, your focused intelligence layer.<br />Ask, explore, build, or simply begin.</p>
+        <div class="hero-orb-wrap">
+          <div class="hero-orb" id="hero-orb">
+            <div class="hero-orb-inner">J</div>
+            <span class="ring ring-one"></span>
+            <span class="ring ring-two"></span>
+            <span class="ring ring-three"></span>
+          </div>
+        </div>
+
+        <p class="eyebrow" id="time-greeting">INITIALIZING SYSTEMS...</p>
+        <h1 class="welcome-title">How can I <em>help you</em><br />think today?</h1>
+        <p class="welcome-copy">
+          I’m JARVIS, your focused intelligence layer.<br />
+          Ask questions, execute system tasks, search the web, or run code.
+        </p>
+
+        <!-- Suggested Prompt Cards -->
         <div class="suggestions" aria-label="Suggested prompts">
-          <button class="suggestion" data-prompt="Help me plan my day with focused time blocks"><span class="suggestion-icon violet">✦</span><span><b>Plan my day</b><small>Build a focused schedule</small></span><i>↗</i></button>
-          <button class="suggestion" data-prompt="What should I learn next to grow my skills?"><span class="suggestion-icon blue">⌘</span><span><b>Explore ideas</b><small>Find your next curiosity</small></span><i>↗</i></button>
-          <button class="suggestion" data-prompt="Help me turn a rough thought into a clear first draft"><span class="suggestion-icon pink">◒</span><span><b>Make something</b><small>Start with a spark</small></span><i>↗</i></button>
+          <button class="suggestion" data-prompt="Help me plan my day with focused time blocks">
+            <span class="suggestion-icon violet">✦</span>
+            <div class="suggestion-content">
+              <b>Plan my day</b>
+              <small>Build a focused schedule</small>
+            </div>
+            <i>↗</i>
+          </button>
+          <button class="suggestion" data-prompt="search latest breakthrough in autonomous AI agents">
+            <span class="suggestion-icon blue">⌘</span>
+            <div class="suggestion-content">
+              <b>Search the web</b>
+              <small>Explore real-time insights</small>
+            </div>
+            <i>↗</i>
+          </button>
+          <button class="suggestion" data-prompt="run echo 'JARVIS Core Systems Operational'">
+            <span class="suggestion-icon pink">⚡</span>
+            <div class="suggestion-content">
+              <b>System execution</b>
+              <small>Run whitelisted commands</small>
+            </div>
+            <i>↗</i>
+          </button>
         </div>
       </div>
     </section>
+
+    <!-- Composer Area -->
     <footer class="composer-area">
-      <div class="composer"><button class="composer-action add" aria-label="Add context">＋</button><textarea id="chat-input" rows="1" placeholder="Message JARVIS" aria-label="Message JARVIS"></textarea><div class="composer-tools"><button class="composer-action" aria-label="Use voice input">⌁</button><button id="chat-send" class="send-button" aria-label="Send message" disabled><span>↑</span></button></div></div>
-      <p class="disclaimer">JARVIS can make mistakes. Verify important information.</p>
+      <!-- Quick Command Chips -->
+      <div class="quick-chips" id="quick-chips">
+        <button class="chip" data-fill="search ">🔍 Search Web</button>
+        <button class="chip" data-fill="run date">⚡ System Date</button>
+        <button class="chip" data-fill="run uptime">⚡ System Uptime</button>
+        <button class="chip" data-fill="Remember: ">🧠 Save Memory</button>
+      </div>
+
+      <div class="composer-wrap">
+        <!-- Voice Listening Waveform Display -->
+        <div class="listening-wave hidden" id="listening-wave">
+          <div class="wave-bars">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <span class="wave-label">Listening for your command...</span>
+        </div>
+
+        <div class="composer">
+          <button class="composer-action add-btn" id="composer-cmd-btn" title="Insert command shortcut" aria-label="Command palette">＋</button>
+          <textarea id="chat-input" rows="1" placeholder="Message JARVIS or type 'search ...', 'run ...'" aria-label="Message JARVIS"></textarea>
+          
+          <div class="composer-tools">
+            <button class="composer-action mic-btn" id="voice-input-btn" title="Speak to JARVIS (Voice Input)" aria-label="Use voice input">
+              <span class="mic-icon">⌁</span>
+            </button>
+            <button id="chat-send" class="send-button" aria-label="Send message" disabled>
+              <span class="send-arrow">↑</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <p class="disclaimer">JARVIS can make mistakes. Verify important technical commands & information.</p>
     </footer>
   </main>
+
+  <!-- Slide-Over Memory Drawer -->
+  <aside class="drawer memory-drawer" id="memory-drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-badge">NEURAL MEMORY</span>
+        <h3>Persistent Context</h3>
+      </div>
+      <button class="drawer-close" id="memory-close-btn" aria-label="Close memory drawer">✕</button>
+    </div>
+    <div class="drawer-body">
+      <p class="drawer-desc">Conversational context retained across sessions in <code>memory/history.json</code>.</p>
+      <div class="memory-stats">
+        <span class="stat-pill"><strong id="mem-stat-count">0</strong> exchanges remembered</span>
+        <button class="btn btn-sm btn-outline-danger" id="clear-memory-btn">Clear All</button>
+      </div>
+      <div class="memory-cards-container" id="memory-cards-container">
+        <!-- Memory cards populated dynamically -->
+        <div class="empty-state">No remembered exchanges yet.</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Workspace / System Info Modal -->
+  <div class="modal-overlay hidden" id="workspace-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="brand-text">
+          <span class="brand-title">SYSTEM MATRIX</span>
+          <span class="brand-sub">Active Architecture & Diagnostics</span>
+        </div>
+        <button class="drawer-close" id="workspace-close-btn" aria-label="Close workspace">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="hud-box">
+          <h4>Core Telemetry</h4>
+          <div class="hud-grid">
+            <div class="hud-stat">
+              <span class="stat-label">Neural Engine</span>
+              <span class="stat-val glow-cyan" id="diag-model">OpenRouter</span>
+            </div>
+            <div class="hud-stat">
+              <span class="stat-label">System Security</span>
+              <span class="stat-val glow-green">Enforced Sandbox</span>
+            </div>
+            <div class="hud-stat">
+              <span class="stat-label">Web STT / TTS</span>
+              <span class="stat-val" id="diag-speech">Browser Native</span>
+            </div>
+            <div class="hud-stat">
+              <span class="stat-label">Memory Retention</span>
+              <span class="stat-val" id="diag-memory">Max 20 Exchanges</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-box">
+          <h4>Built-in Protocols</h4>
+          <div class="protocol-list">
+            <div class="protocol-item">
+              <code>search &lt;query&gt;</code>
+              <span>Queries live web sources via context7 / playwright</span>
+            </div>
+            <div class="protocol-item">
+              <code>run &lt;command&gt;</code>
+              <span>Executes approved shell utilities (echo, ls, date, uptime)</span>
+            </div>
+            <div class="protocol-item">
+              <code>⌘ K / Ctrl K</code>
+              <span>Instant composer focus</span>
+            </div>
+            <div class="protocol-item">
+              <code>Voice Toggle</code>
+              <span>Click the mic (⌁) in composer to dictate commands</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- External libraries: Marked & Highlight.js for beautiful markdown & code highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="/static/script.js"></script>
 </body>
 </html>

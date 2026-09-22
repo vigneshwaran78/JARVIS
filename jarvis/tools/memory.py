@@ -39,3 +39,8 @@ class MemoryTool:
 
     def history(self) -> list[dict]:
         return list(self._data)
+
+    def clear(self) -> None:
+        self._data = []
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.write_text("[]", encoding="utf-8")

@@ -28,5 +28,32 @@ def chat():
         return jsonify({"response": f"Error: {e}"}), 500
 
 
+@app.route("/api/status", methods=["GET"])
+def get_status():
+    return jsonify({
+        "status": "online",
+        "model": agent.configured_model,
+        "memory_count": len(agent.memory.history()),
+        "voice_enabled": agent.voice_enabled,
+    })
+
+
+@app.route("/api/memory", methods=["GET"])
+def get_memory():
+    return jsonify({
+        "history": agent.memory.history(),
+        "count": len(agent.memory.history()),
+    })
+
+
+@app.route("/api/memory/clear", methods=["POST"])
+def clear_memory():
+    try:
+        agent.clear_memory()
+        return jsonify({"success": True, "message": "Memory cleared."})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
