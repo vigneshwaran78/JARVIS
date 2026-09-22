@@ -7,3 +7,4 @@ memory/history.json
 node_modules/
 .opencode/node_modules/
 logs/
+.idea/

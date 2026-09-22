@@ -81,6 +81,10 @@ class JarvisAgent:
         self._messages.append({"role": "assistant", "content": response})
         self.memory.add("assistant", response)
 
+    def clear_memory(self) -> None:
+        self.memory.clear()
+        self._messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
     def speak(self, text: str) -> None:
         if self.voice_tool:
             self.voice_tool.speak(text)
